@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<!-- saved from url=(0111)file:///C:/Users/PC/.gemini/antigravity/brain/702b78e9-03d3-4d13-80b6-b24d17e728d7/SoDo_TuDuy_VatLyNhiet12.html -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ đồ Tư Duy – Vật Lý Nhiệt 12</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 28px 20px 12px;
+    }
+    header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 12px #f9731688;
+      color: #fff;
+    }
+    header p {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 6px;
+    }
+
+    /* ── Scroll wrapper ── */
+    #outer {
+      overflow: auto;
+      padding: 20px;
+    }
+
+    /* ── Canvas ── */
+    #canvas {
+      position: relative;
+      width: 1650px;
+      height: 1130px;
+      margin: 0 auto;
+    }
+
+    svg#lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Node Base ── */
+    .node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: transform .22s ease, box-shadow .22s ease;
+      z-index: 2;
+      user-select: none;
+      line-height: 1.35;
+    }
+    .node:hover { transform: translate(-50%, -50%) scale(1.09); }
+
+    /* ── Root ── */
+    .node-root {
+      width: 172px; height: 172px;
+      font-size: 15px; font-weight: 900;
+      background: radial-gradient(circle at 35% 35%, #ff914d, #e63946);
+      color: #fff;
+      box-shadow: 0 0 0 6px #e6394633, 0 10px 40px #e6394688;
+      border: 3px solid #fff3;
+    }
+
+    /* ── Branch ── */
+    .node-branch {
+      width: 145px; height: 145px;
+      font-size: 12.5px; font-weight: 800;
+      color: #fff;
+      border: 2.5px solid #fff2;
+      box-shadow: 0 6px 24px #0006;
+    }
+
+    /* ── Leaf ── */
+    .node-leaf {
+      border-radius: 14px;
+      width: 155px;
+      min-height: 50px;
+      padding: 9px 11px;
+      font-size: 11.5px; font-weight: 600;
+      box-shadow: 0 4px 14px #0004;
+      cursor: default;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .node-leaf:hover {
+      transform: translate(-50%,-50%) scale(1.06) !important;
+      box-shadow: 0 8px 28px #0008;
+      z-index: 10;
+    }
+
+    /* ── Branch colours ── */
+    .c1 { background: linear-gradient(135deg,#2563eb,#4f46e5); }
+    .c2 { background: linear-gradient(135deg,#059669,#0d9488); }
+    .c3 { background: linear-gradient(135deg,#d97706,#b45309); }
+    .c4 { background: linear-gradient(135deg,#db2777,#9d174d); }
+    .c5 { background: linear-gradient(135deg,#7c3aed,#6d28d9); }
+    .c6 { background: linear-gradient(135deg,#0891b2,#0e7490); }
+    .c7 { background: linear-gradient(135deg,#e11d48,#be123c); }
+
+    /* ── Leaf colours ── */
+    .leaf1 { background:#1e3a8a; color:#bfdbfe; border:1.5px solid #3b82f6; }
+    .leaf2 { background:#064e3b; color:#a7f3d0; border:1.5px solid #10b981; }
+    .leaf3 { background:#78350f; color:#fde68a; border:1.5px solid #f59e0b; }
+    .leaf4 { background:#831843; color:#fbcfe8; border:1.5px solid #ec4899; }
+    .leaf5 { background:#3b0764; color:#ddd6fe; border:1.5px solid #8b5cf6; }
+    .leaf6 { background:#164e63; color:#a5f3fc; border:1.5px solid #06b6d4; }
+    .leaf7 { background:#881337; color:#fecdd3; border:1.5px solid #f43f5e; }
+
+    /* ── Leaf wrapper (for absolute positioning) ── */
+    .leaf-wrap {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    /* ── Tooltip ── */
+    #tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #1e1b4b;
+      border: 1px solid #4f46e5;
+      color: #e0e7ff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      max-width: 290px;
+      line-height: 1.65;
+      box-shadow: 0 12px 32px #0008;
+      z-index: 9999;
+      display: none;
+    }
+
+    /* ── Legend ── */
+    #legend {
+      position: absolute;
+      bottom: 14px;
+      left: 18px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: #ffffff12;
+      border: 1px solid #ffffff22;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    /* ── Save tip bar ── */
+    #savetip {
+      text-align: center;
+      padding: 10px;
+      font-size: 13px;
+      color: #aaa;
+      background: #ffffff09;
+      border-top: 1px solid #ffffff15;
+    }
+    #savetip kbd {
+      background: #ffffff22;
+      border: 1px solid #ffffff33;
+      border-radius: 5px;
+      padding: 1px 7px;
+      font-family: monospace;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🔥 Sơ đồ Tư Duy — Vật Lý Nhiệt 12</h1>
+  <p>Di chuột vào các ô lá (nhỏ) để xem công thức chi tiết</p>
+</header>
+
+<div id="outer">
+  <div id="canvas">
+    <svg id="lines"><line x1="825" y1="565" x2="834.7020600832954" y2="287.1693500886914" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round"></line><line x1="834.7020600832954" y1="287.1693500886914" x2="732.9289516516194" y2="136.28451188367384" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="834.7020600832954" y1="287.1693500886914" x2="784.5360613246015" y2="112.2197214279173" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="834.7020600832954" y1="287.1693500886914" x2="841.0537684831506" y2="105.28021957121595" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="834.7020600832954" y1="287.1693500886914" x2="896.9497261685669" y2="116.14529310565601" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="834.7020600832954" y1="287.1693500886914" x2="946.7524485925652" y2="143.751392932268" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="825" y1="565" x2="1052.7242683123397" y2="405.5457506944091" stroke="#10b981" stroke-width="4.5" stroke-linecap="round"></line><line x1="1052.7242683123397" y1="405.5457506944091" x2="1111.9776724235421" y2="233.4613699353334" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1052.7242683123397" y1="405.5457506944091" x2="1162.2546025260124" y2="260.19408786580175" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1052.7242683123397" y1="405.5457506944091" x2="1201.8099403729361" y2="301.15483927851864" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1052.7242683123397" y1="405.5457506944091" x2="1226.7717338976122" y2="352.33410043487106" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1052.7242683123397" y1="405.5457506944091" x2="1234.6965488308028" y2="408.7220886659946" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="825" y1="565" x2="1089.3937115300528" y2="650.9067244362354" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"></line><line x1="1089.3937115300528" y1="650.9067244362354" x2="1262.4859974957708" y2="594.665631459995" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1089.3937115300528" y1="650.9067244362354" x2="1271.3937115300528" y2="650.9067244362354" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1089.3937115300528" y1="650.9067244362354" x2="1262.4859974957708" y2="707.1478174124759" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1089.3937115300528" y1="650.9067244362354" x2="1236.6348045062932" y2="757.8836403534656" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="1089.3937115300528" y1="650.9067244362354" x2="1196.370627447283" y2="798.1478174124759" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="825" y1="565" x2="920.081599844536" y2="826.2345485784825" stroke="#ec4899" stroke-width="4.5" stroke-linecap="round"></line><line x1="920.081599844536" y1="826.2345485784825" x2="1070.9664380495535" y2="928.0076570101585" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="920.081599844536" y1="826.2345485784825" x2="1032.1319883538058" y2="969.652505734906" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="920.081599844536" y1="826.2345485784825" x2="982.3292659298077" y2="997.2586055615178" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="920.081599844536" y1="826.2345485784825" x2="926.4333082443911" y2="1008.123679095958" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="920.081599844536" y1="826.2345485784825" x2="869.9156010858421" y2="1001.1841772392565" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="825" y1="565" x2="646.305044507142" y2="777.960355187076" stroke="#8b5cf6" stroke-width="4.5" stroke-linecap="round"></line><line x1="646.305044507142" y1="777.960355187076" x2="614.7010761717607" y2="957.1953662352978" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="646.305044507142" y1="777.960355187076" x2="555.305044507142" y2="935.5769786758437" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="646.305044507142" y1="777.960355187076" x2="506.88495585948806" y2="894.9477001500261" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="646.305044507142" y1="777.960355187076" x2="475.28098752410676" y2="840.2080212723477" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="825" y1="565" x2="549.7054768898435" y2="526.3098779331018" stroke="#06b6d4" stroke-width="4.5" stroke-linecap="round"></line><line x1="549.7054768898435" y1="526.3098779331018" x2="380.95801535868816" y2="594.4882779347978" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="549.7054768898435" y1="526.3098779331018" x2="367.816346372368" y2="532.661586332957" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="549.7054768898435" y1="526.3098779331018" x2="376.61319092412555" y2="470.0687849568613" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="549.7054768898435" y1="526.3098779331018" x2="406.28751973342" y2="414.25948942383206" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="825" y1="565" x2="638.9816914322373" y2="358.4057385172845" stroke="#f43f5e" stroke-width="4.5" stroke-linecap="round"></line><line x1="638.9816914322373" y1="358.4057385172845" x2="460.95882809868465" y2="320.5658107884523" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="638.9816914322373" y1="358.4057385172845" x2="481.3650679434695" y2="267.4057385172845" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="638.9816914322373" y1="358.4057385172845" x2="517.1999210749251" y2="223.15338028039878" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="638.9816914322373" y1="358.4057385172845" x2="564.9556223924417" y2="192.1404652263311" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line><line x1="638.9816914322373" y1="358.4057385172845" x2="619.9575111175244" y2="177.40275356025873" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-dasharray="5 4"></line></svg>
+  <div class="node node-root" style="left: 825px; top: 565px;">🔥<br>VẬT LÝ<br>NHIỆT 12</div><div class="node node-branch c1" style="left: 834.702px; top: 287.169px;">🔵 Cấu trúc<br>của Chất</div><div class="leaf-wrap" style="left: 732.929px; top: 136.285px;"><div class="node node-leaf leaf1" style="position: relative; transform: translateX(-50%);">Kích thước phân tử</div></div><div class="leaf-wrap" style="left: 784.536px; top: 112.22px;"><div class="node node-leaf leaf1" style="position: relative; transform: translateX(-50%);">Thể khí</div></div><div class="leaf-wrap" style="left: 841.054px; top: 105.28px;"><div class="node node-leaf leaf1" style="position: relative; transform: translateX(-50%);">Thể lỏng</div></div><div class="leaf-wrap" style="left: 896.95px; top: 116.145px;"><div class="node node-leaf leaf1" style="position: relative; transform: translateX(-50%);">Thể rắn</div></div><div class="leaf-wrap" style="left: 946.752px; top: 143.751px;"><div class="node node-leaf leaf1" style="position: relative; transform: translateX(-50%);">Chuyển động nhiệt</div></div><div class="node node-branch c2" style="left: 1052.72px; top: 405.546px;">🟢 Chuyển Thể<br>&amp; Nội Năng</div><div class="leaf-wrap" style="left: 1111.98px; top: 233.461px;"><div class="node node-leaf leaf2" style="position: relative; transform: translateX(-50%);">Nội năng U</div></div><div class="leaf-wrap" style="left: 1162.25px; top: 260.194px;"><div class="node node-leaf leaf2" style="position: relative; transform: translateX(-50%);">ΔU</div></div><div class="leaf-wrap" style="left: 1201.81px; top: 301.155px;"><div class="node node-leaf leaf2" style="position: relative; transform: translateX(-50%);">Nóng chảy</div></div><div class="leaf-wrap" style="left: 1226.77px; top: 352.334px;"><div class="node node-leaf leaf2" style="position: relative; transform: translateX(-50%);">Bay hơi</div></div><div class="leaf-wrap" style="left: 1234.7px; top: 408.722px;"><div class="node node-leaf leaf2" style="position: relative; transform: translateX(-50%);">Ngưng tụ</div></div><div class="node node-branch c3" style="left: 1089.39px; top: 650.907px;">🟡 Định Luật I<br>Nhiệt Động Lực</div><div class="leaf-wrap" style="left: 1262.49px; top: 594.666px;"><div class="node node-leaf leaf3" style="position: relative; transform: translateX(-50%);">ΔU = A + Q</div></div><div class="leaf-wrap" style="left: 1271.39px; top: 650.907px;"><div class="node node-leaf leaf3" style="position: relative; transform: translateX(-50%);">Công A</div></div><div class="leaf-wrap" style="left: 1262.49px; top: 707.148px;"><div class="node node-leaf leaf3" style="position: relative; transform: translateX(-50%);">Nhiệt lượng Q</div></div><div class="leaf-wrap" style="left: 1236.63px; top: 757.884px;"><div class="node node-leaf leaf3" style="position: relative; transform: translateX(-50%);">Bảo toàn NL</div></div><div class="leaf-wrap" style="left: 1196.37px; top: 798.148px;"><div class="node node-leaf leaf3" style="position: relative; transform: translateX(-50%);">Các quá trình</div></div><div class="node node-branch c4" style="left: 920.082px; top: 826.235px;">🩷 Nhiệt Độ<br>&amp; Thang Nhiệt</div><div class="leaf-wrap" style="left: 1070.97px; top: 928.008px;"><div class="node node-leaf leaf4" style="position: relative; transform: translateX(-50%);">Khái niệm nhiệt độ</div></div><div class="leaf-wrap" style="left: 1032.13px; top: 969.653px;"><div class="node node-leaf leaf4" style="position: relative; transform: translateX(-50%);">Thang Celsius</div></div><div class="leaf-wrap" style="left: 982.329px; top: 997.259px;"><div class="node node-leaf leaf4" style="position: relative; transform: translateX(-50%);">Thang Kelvin</div></div><div class="leaf-wrap" style="left: 926.433px; top: 1008.12px;"><div class="node node-leaf leaf4" style="position: relative; transform: translateX(-50%);">Thang Fahrenheit</div></div><div class="leaf-wrap" style="left: 869.916px; top: 1001.18px;"><div class="node node-leaf leaf4" style="position: relative; transform: translateX(-50%);">Loại nhiệt kế</div></div><div class="node node-branch c5" style="left: 646.305px; top: 777.96px;">🟣 Nhiệt<br>Dung Riêng</div><div class="leaf-wrap" style="left: 614.701px; top: 957.195px;"><div class="node node-leaf leaf5" style="position: relative; transform: translateX(-50%);">Định nghĩa c</div></div><div class="leaf-wrap" style="left: 555.305px; top: 935.577px;"><div class="node node-leaf leaf5" style="position: relative; transform: translateX(-50%);">Q = m·c·Δt</div></div><div class="leaf-wrap" style="left: 506.885px; top: 894.948px;"><div class="node node-leaf leaf5" style="position: relative; transform: translateX(-50%);">Bảng giá trị c</div></div><div class="leaf-wrap" style="left: 475.281px; top: 840.208px;"><div class="node node-leaf leaf5" style="position: relative; transform: translateX(-50%);">Ý nghĩa c</div></div><div class="node node-branch c6" style="left: 549.705px; top: 526.31px;">🩵 Nhiệt Nóng<br>Chảy Riêng</div><div class="leaf-wrap" style="left: 380.958px; top: 594.488px;"><div class="node node-leaf leaf6" style="position: relative; transform: translateX(-50%);">Định nghĩa λ</div></div><div class="leaf-wrap" style="left: 367.816px; top: 532.662px;"><div class="node node-leaf leaf6" style="position: relative; transform: translateX(-50%);">Q = λ·m</div></div><div class="leaf-wrap" style="left: 376.613px; top: 470.069px;"><div class="node node-leaf leaf6" style="position: relative; transform: translateX(-50%);">Thuận nghịch</div></div><div class="leaf-wrap" style="left: 406.288px; top: 414.259px;"><div class="node node-leaf leaf6" style="position: relative; transform: translateX(-50%);">Bảng giá trị λ</div></div><div class="node node-branch c7" style="left: 638.982px; top: 358.406px;">🔴 Nhiệt Hóa<br>Hơi Riêng</div><div class="leaf-wrap" style="left: 460.959px; top: 320.566px;"><div class="node node-leaf leaf7" style="position: relative; transform: translateX(-50%);">Định nghĩa L</div></div><div class="leaf-wrap" style="left: 481.365px; top: 267.406px;"><div class="node node-leaf leaf7" style="position: relative; transform: translateX(-50%);">Q = L·m</div></div><div class="leaf-wrap" style="left: 517.2px; top: 223.153px;"><div class="node node-leaf leaf7" style="position: relative; transform: translateX(-50%);">Bảng giá trị L</div></div><div class="leaf-wrap" style="left: 564.956px; top: 192.14px;"><div class="node node-leaf leaf7" style="position: relative; transform: translateX(-50%);">t_s và áp suất</div></div><div class="leaf-wrap" style="left: 619.958px; top: 177.403px;"><div class="node node-leaf leaf7" style="position: relative; transform: translateX(-50%);">Bay hơi vs Sôi</div></div><div id="legend">🔥 Trung tâm &nbsp;|&nbsp; 🔵 Nhánh chính &nbsp;|&nbsp; 📝 Nội dung &nbsp;|&nbsp; 👆 Hover để xem công thức</div></div>
+</div>
+
+<div id="savetip">
+  💡 Lưu file: nhấn <kbd>Ctrl + S</kbd> trong trình duyệt → Chọn "Webpage, HTML Only" → Lưu về máy
+</div>
+
+<div id="tooltip" style="display: none; left: 870px; top: 532px;">🧪 Các loại nhiệt kế:<br>Rượu · Thuỷ ngân · Điện trở<br>Hồng ngoại (IR) · Điện tử</div>
+
+<script>
+// ────────────────────────────────────────────────
+//  DATA
+// ────────────────────────────────────────────────
+const CX = 825, CY = 565; // root centre
+
+const BRANCHES = [
+  {
+    id:'b1', angle:272, r:278, cls:'c1', lcls:'leaf1',
+    label:'🔵 Cấu trúc\ncủa Chất',
+    tips:[
+      {t:'⚛️ Kích thước phân tử:\n~10⁻¹⁰ m (1 Å)', short:'Kích thước phân tử'},
+      {t:'💨 Thể khí:\nPhân tử rất xa nhau\nChuyển động hỗn loạn tự do', short:'Thể khí'},
+      {t:'💧 Thể lỏng:\nPhân tử gần nhau hơn\nTương tác mạnh hơn thể khí', short:'Thể lỏng'},
+      {t:'🧱 Thể rắn:\nPhân tử ở vị trí cố định\nDao động quanh VTCB', short:'Thể rắn'},
+      {t:'🔀 Chuyển động nhiệt:\nNhiệt độ càng cao\n→ Chuyển động càng nhanh', short:'Chuyển động nhiệt'},
+    ]
+  },
+  {
+    id:'b2', angle:325, r:278, cls:'c2', lcls:'leaf2',
+    label:'🟢 Chuyển Thể\n& Nội Năng',
+    tips:[
+      {t:'🌡️ Nội năng U:\nTổng động năng + thế năng\ncủa các phân tử trong vật', short:'Nội năng U'},
+      {t:'🔄 Biến thiên nội năng:\nΔU = Q + A\n(Truyền nhiệt & thực hiện công)', short:'ΔU'},
+      {t:'🧊→💧 Nóng chảy:\nRắn → Lỏng ở nhiệt độ t₀\nÁp suất không đổi → t₀ không đổi', short:'Nóng chảy'},
+      {t:'💧→🌫️ Bay hơi / Sôi:\nLỏng → Hơi\n(Bay hơi: bề mặt · Sôi: toàn khối)', short:'Bay hơi'},
+      {t:'🌫️→💧 Ngưng tụ:\nHơi → Lỏng\nToả nhiệt ra môi trường', short:'Ngưng tụ'},
+    ]
+  },
+  {
+    id:'b3', angle:18, r:278, cls:'c3', lcls:'leaf3',
+    label:'🟡 Định Luật I\nNhiệt Động Lực',
+    tips:[
+      {t:'📐 Công thức:\nΔU = A + Q', short:'ΔU = A + Q'},
+      {t:'🔧 Công A:\nA > 0 → ngoại lực sinh công lên hệ\nA < 0 → hệ sinh công ra ngoài', short:'Công A'},
+      {t:'🔥 Nhiệt lượng Q:\nQ > 0 → hệ nhận nhiệt\nQ < 0 → hệ toả nhiệt', short:'Nhiệt lượng Q'},
+      {t:'⚡ Bảo toàn năng lượng:\nNăng lượng không tự sinh ra\nhoặc mất đi, chỉ chuyển hoá', short:'Bảo toàn NL'},
+      {t:'🔁 Áp dụng:\nĐẳng tích: A=0 → ΔU = Q\nĐẳng áp: ΔU = Q + A', short:'Các quá trình'},
+    ]
+  },
+  {
+    id:'b4', angle:70, r:278, cls:'c4', lcls:'leaf4',
+    label:'🩷 Nhiệt Độ\n& Thang Nhiệt',
+    tips:[
+      {t:'🌡️ Nhiệt độ:\nĐo mức độ nóng-lạnh\nLiên quan đến CĐ nhiệt phân tử', short:'Khái niệm nhiệt độ'},
+      {t:'°C — Celsius:\n0°C: nước đá đang tan\n100°C: nước đang sôi (1 atm)', short:'Thang Celsius'},
+      {t:'K — Kelvin (SI):\nT(K) = t(°C) + 273,15\n0 K = −273°C (tuyệt đối)', short:'Thang Kelvin'},
+      {t:'°F — Fahrenheit:\nt(°F) = 9/5 × t(°C) + 32\n32°F = 0°C · 212°F = 100°C', short:'Thang Fahrenheit'},
+      {t:'🧪 Các loại nhiệt kế:\nRượu · Thuỷ ngân · Điện trở\nHồng ngoại (IR) · Điện tử', short:'Loại nhiệt kế'},
+    ]
+  },
+  {
+    id:'b5', angle:130, r:278, cls:'c5', lcls:'leaf5',
+    label:'🟣 Nhiệt\nDung Riêng',
+    tips:[
+      {t:'📖 Định nghĩa c:\nNhiệt lượng cần để 1 kg chất\ntăng thêm 1°C (hay 1 K)', short:'Định nghĩa c'},
+      {t:'📐 Công thức:\nQ = m · c · Δt\nm (kg) · c (J/kg·K) · Δt (°C hoặc K)', short:'Q = m·c·Δt'},
+      {t:'📊 Một số giá trị c:\n💧 Nước: 4200 J/kg·K\n🪙 Nhôm: 880 J/kg·K\n🔩 Sắt: 460 J/kg·K\n🪨 Đồng: 380 J/kg·K', short:'Bảng giá trị c'},
+      {t:'💡 Ý nghĩa thực tế:\nNước có c lớn → điều hoà nhiệt tốt\nDùng làm chất tải nhiệt, làm mát', short:'Ý nghĩa c'},
+    ]
+  },
+  {
+    id:'b6', angle:188, r:278, cls:'c6', lcls:'leaf6',
+    label:'🩵 Nhiệt Nóng\nChảy Riêng',
+    tips:[
+      {t:'📖 Định nghĩa λ:\nNhiệt lượng để 1 kg chất rắn\nhoá lỏng hoàn toàn ở t₀', short:'Định nghĩa λ'},
+      {t:'📐 Công thức:\nQ = λ · m\nλ (J/kg) · m (kg)', short:'Q = λ·m'},
+      {t:'🔁 Thuận nghịch:\nNóng chảy: hấp thụ Q\nĐông đặc: toả ra Q', short:'Thuận nghịch'},
+      {t:'📊 Giá trị λ:\n🧊 Nước đá: 3,4 × 10⁵ J/kg\n🔩 Sắt: 2,7 × 10⁵ J/kg\n🪙 Nhôm: 3,9 × 10⁵ J/kg', short:'Bảng giá trị λ'},
+    ]
+  },
+  {
+    id:'b7', angle:228, r:278, cls:'c7', lcls:'leaf7',
+    label:'🔴 Nhiệt Hóa\nHơi Riêng',
+    tips:[
+      {t:'📖 Định nghĩa L:\nNhiệt lượng để 1 kg chất lỏng\nhoá hơi hoàn toàn ở t_s', short:'Định nghĩa L'},
+      {t:'📐 Công thức:\nQ = L · m\nL (J/kg) · m (kg)', short:'Q = L·m'},
+      {t:'📊 Giá trị L:\n💧 Nước (100°C): 2,26 × 10⁶ J/kg\n🧪 Cồn (78°C): 8,5 × 10⁵ J/kg', short:'Bảng giá trị L'},
+      {t:'🌡️ Nhiệt độ sôi & áp suất:\nÁp suất tăng → t_s tăng\n(Nồi áp suất sôi ở >100°C)', short:'t_s và áp suất'},
+      {t:'☁️ Bay hơi ≠ Sôi:\nBay hơi: mọi t°, chỉ bề mặt\nSôi: t = t_s, toàn khối lỏng', short:'Bay hơi vs Sôi'},
+    ]
+  },
+];
+
+// ────────────────────────────────────────────────
+//  GEOMETRY HELPERS
+// ────────────────────────────────────────────────
+const toRad = d => d * Math.PI / 180;
+
+function branchXY(b){
+  return {
+    x: CX + b.r * Math.cos(toRad(b.angle)),
+    y: CY + b.r * Math.sin(toRad(b.angle))
+  };
+}
+
+function leafPositions(b, bx, by){
+  const n = b.tips.length;
+  const leafR = 182;
+  const spread = Math.min(72, 15 * n);
+  const startAngle = b.angle - spread / 2;
+  const step = n > 1 ? spread / (n - 1) : 0;
+  return b.tips.map((_,i) => ({
+    x: bx + leafR * Math.cos(toRad(startAngle + i * step)),
+    y: by + leafR * Math.sin(toRad(startAngle + i * step)),
+  }));
+}
+
+// ────────────────────────────────────────────────
+//  SVG LINES
+// ────────────────────────────────────────────────
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('lines');
+const canvas = document.getElementById('canvas');
+
+const branchColor = {
+  c1:'#3b82f6', c2:'#10b981', c3:'#f59e0b',
+  c4:'#ec4899', c5:'#8b5cf6', c6:'#06b6d4', c7:'#f43f5e'
+};
+
+function addLine(x1,y1,x2,y2,col,w=3,dash=''){
+  const l = document.createElementNS(NS,'line');
+  Object.assign(l,{});
+  l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+  l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+  l.setAttribute('stroke',col); l.setAttribute('stroke-width',w);
+  l.setAttribute('stroke-linecap','round');
+  if(dash) l.setAttribute('stroke-dasharray',dash);
+  svg.appendChild(l);
+}
+
+// ────────────────────────────────────────────────
+//  NODE BUILDERS
+// ────────────────────────────────────────────────
+function makeRoot(){
+  const d = document.createElement('div');
+  d.className = 'node node-root';
+  d.style.left = CX+'px'; d.style.top = CY+'px';
+  d.innerHTML = '🔥<br>VẬT LÝ<br>NHIỆT 12';
+  canvas.appendChild(d);
+}
+
+const tooltip = document.getElementById('tooltip');
+
+function addTooltip(el, text){
+  el.addEventListener('mouseenter', () => {
+    tooltip.innerHTML = text.replace(/\n/g,'<br>');
+    tooltip.style.display = 'block';
+  });
+  el.addEventListener('mousemove', e => {
+    tooltip.style.left = (e.clientX + 18) + 'px';
+    tooltip.style.top  = (e.clientY + 14) + 'px';
+  });
+  el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+}
+
+// ────────────────────────────────────────────────
+//  RENDER
+// ────────────────────────────────────────────────
+makeRoot();
+
+BRANCHES.forEach(b => {
+  const col = branchColor[b.cls];
+  const {x:bx, y:by} = branchXY(b);
+
+  // root → branch line
+  addLine(CX, CY, bx, by, col, 4.5);
+
+  // branch node
+  const bn = document.createElement('div');
+  bn.className = 'node node-branch ' + b.cls;
+  bn.style.left = bx+'px'; bn.style.top = by+'px';
+  bn.innerHTML = b.label.replace(/\n/g,'<br>');
+  canvas.appendChild(bn);
+
+  // leaves
+  leafPositions(b, bx, by).forEach(({x:lx,y:ly}, i) => {
+    const tip = b.tips[i];
+
+    // branch → leaf line
+    addLine(bx, by, lx, ly, col, 2, '5 4');
+
+    // leaf wrapper
+    const wrap = document.createElement('div');
+    wrap.className = 'leaf-wrap';
+    wrap.style.left = lx+'px'; wrap.style.top = ly+'px';
+
+    const leaf = document.createElement('div');
+    leaf.className = 'node node-leaf ' + b.lcls;
+    leaf.style.position = 'relative';
+    leaf.style.transform = 'translateX(-50%)';
+    leaf.innerHTML = tip.short;
+
+    addTooltip(leaf, tip.t);
+    wrap.appendChild(leaf);
+    canvas.appendChild(wrap);
+  });
+});
+
+// ────────────────────────────────────────────────
+//  LEGEND
+// ────────────────────────────────────────────────
+const leg = document.createElement('div');
+leg.id = 'legend';
+leg.innerHTML = '🔥 Trung tâm &nbsp;|&nbsp; 🔵 Nhánh chính &nbsp;|&nbsp; 📝 Nội dung &nbsp;|&nbsp; 👆 Hover để xem công thức';
+canvas.appendChild(leg);
+</script>
+
+
+</body></html>
